@@ -1,11 +1,5 @@
+import { useState, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-
-const CATEGORIES = [
-  "anal", "ass", "blowjob", "breeding", "buttplug", "cages",
-  "ecchi", "feet", "fo", "gif", "hentai", "legs",
-  "masturbation", "milf", "neko", "paizuri", "petgirls",
-  "pierced", "selfie", "smothering", "socks", "vagina", "yuri"
-];
 
 interface CategorySelectProps {
   selectedCategory: string | null;
@@ -13,6 +7,23 @@ interface CategorySelectProps {
 }
 
 export default function CategorySelect({ selectedCategory, onCategoryChange }: CategorySelectProps) {
+  const [categories, setCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const response = await fetch('/api/categories');
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+      }
+    }
+    fetchCategories();
+  }, []);
+
   return (
     <Select
       value={selectedCategory || 'all'}
@@ -23,7 +34,7 @@ export default function CategorySelect({ selectedCategory, onCategoryChange }: C
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="all">All Categories</SelectItem>
-        {CATEGORIES.map((category) => (
+        {categories.map((category) => (
           <SelectItem key={category} value={category}>
             {category.charAt(0).toUpperCase() + category.slice(1)}
           </SelectItem>
