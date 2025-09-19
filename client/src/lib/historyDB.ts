@@ -50,3 +50,11 @@ export async function getHistory(): Promise<GalleryImage[]> {
   // Sort by timestamp descending to get the most recent items first
   return allItems.sort((a, b) => b.timestamp - a.timestamp);
 }
+
+export async function clearHistory(): Promise<void> {
+  const db = await dbPromise;
+  const tx = db.transaction(STORE_NAME, 'readwrite');
+  const store = tx.objectStore(STORE_NAME);
+  await store.clear();
+  await tx.done;
+}
