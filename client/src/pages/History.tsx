@@ -76,8 +76,8 @@ export default function History() {
     <div className="min-h-screen bg-background p-4 md:p-8">
       <Card className="mb-8 bg-card border shadow-lg">
         <CardContent className="p-6 relative">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent text-center whitespace-nowrap">
-            Recently Viewed
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent text-center">
+            History
           </h1>
           <div className="flex justify-center items-center gap-4">
             <Button asChild variant="outline" size="default">
@@ -132,9 +132,6 @@ export default function History() {
           <div className="text-center text-muted-foreground mt-16">
             <p className="text-xl">No recently viewed images.</p>
             <p>Go back to the gallery and view some images to see them here.</p>
-            <Button asChild className="mt-4">
-              <Link to="/">Back to Gallery</Link>
-            </Button>
           </div>
         )
       )}
