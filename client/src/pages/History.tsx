@@ -77,7 +77,7 @@ export default function History() {
       <Card className="mb-8 bg-card border shadow-lg">
         <CardContent className="p-6 relative">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent text-center">
-            History
+            Your History
           </h1>
           <div className="flex justify-center items-center gap-4">
             <Button asChild variant="outline" size="default">
