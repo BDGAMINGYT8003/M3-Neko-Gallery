@@ -48,10 +48,17 @@ export default function ImageCard({ image, onDownload, isDownloading, onFullscre
         <CardContent className="p-0">
           <div className="relative w-full">
             {isLoading && (
-              <div className="absolute inset-0 bg-muted animate-pulse" />
+              <div
+                className="absolute inset-0 bg-muted animate-pulse"
+                style={{
+                  backgroundImage: image.thumbnail ? `url(${image.thumbnail})` : 'none',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              />
             )}
             <img
-              src={image.url}
+              src={(image.thumbnail && !image.url.endsWith('.gif')) ? image.thumbnail : image.url}
               alt="Artwork"
               className={`w-full h-auto object-cover transition-transform duration-300 group-hover:scale-110 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
               loading="lazy"
@@ -59,6 +66,14 @@ export default function ImageCard({ image, onDownload, isDownloading, onFullscre
                 const img = e.target as HTMLImageElement;
                 img.style.aspectRatio = `${img.naturalWidth} / ${img.naturalHeight}`;
                 setIsLoading(false);
+                // If a thumbnail was loaded, replace it with the full image now
+                if (image.thumbnail && img.src === image.thumbnail) {
+                  const fullImage = new Image();
+                  fullImage.src = image.url;
+                  fullImage.onload = () => {
+                    img.src = fullImage.src;
+                  };
+                }
               }}
             />
             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">

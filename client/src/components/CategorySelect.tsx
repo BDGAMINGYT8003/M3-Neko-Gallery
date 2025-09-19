@@ -1,11 +1,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { getDisplayCategories } from '../lib/apis';
 
-const CATEGORIES = [
-  "anal", "ass", "blowjob", "breeding", "buttplug", "cages",
-  "ecchi", "feet", "fo", "gif", "hentai", "legs",
-  "masturbation", "milf", "neko", "paizuri", "petgirls",
-  "pierced", "selfie", "smothering", "socks", "vagina", "yuri"
-];
+const CATEGORIES = getDisplayCategories();
 
 interface CategorySelectProps {
   selectedCategory: string | null;
@@ -25,7 +21,7 @@ export default function CategorySelect({ selectedCategory, onCategoryChange }: C
         <SelectItem value="all">All Categories</SelectItem>
         {CATEGORIES.map((category) => (
           <SelectItem key={category} value={category}>
-            {category.charAt(0).toUpperCase() + category.slice(1)}
+            {category}
           </SelectItem>
         ))}
       </SelectContent>
