@@ -2,8 +2,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 const CATEGORIES = [
   "anal", "ass", "blowjob", "breeding", "buttplug", "cages",
-  "ecchi", "feet", "fo", "gif", "hentai", "legs",
-  "masturbation", "milf", "neko", "paizuri", "petgirls",
+  "ecchi", "ero", "feet", "fo", "gif", "hentai", "legs",
+  "masturbation", "milf", "neko", "oral", "paizuri", "petgirls",
   "pierced", "selfie", "smothering", "socks", "vagina", "yuri"
 ];
 
