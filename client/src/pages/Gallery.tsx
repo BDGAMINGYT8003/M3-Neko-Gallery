@@ -8,6 +8,7 @@ import GalleryGrid from '../components/GalleryGrid';
 import { handleDownload as downloadImage } from '../lib/download';
 import FullscreenViewer from '../components/FullscreenViewer';
 import { useToast } from '@/hooks/use-toast';
+import ScrollIndicator from '../components/ScrollIndicator';
 
 export interface GalleryImage {
   url: string;
@@ -25,6 +26,7 @@ export default function Gallery() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [downloadingIndex, setDownloadingIndex] = useState<number | null>(null);
   const [fullscreenIndex, setFullscreenIndex] = useState<number | null>(null);
+  const [lastVisibleIndex, setLastVisibleIndex] = useState(0);
   const loadingRef = useRef(false);
   const { toast } = useToast();
 
@@ -89,6 +91,16 @@ export default function Gallery() {
     fetchImages();
   }, [selectedCategory, fetchImages]);
 
+  useEffect(() => {
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      const imageUrls = images.map(image => image.url);
+      navigator.serviceWorker.controller.postMessage({
+        type: 'CACHE_URLS',
+        payload: { urls: imageUrls }
+      });
+    }
+  }, [images]);
+
   async function fetchImageFromApi(apiSource: string, category: string | null): Promise<GalleryImage | null> {
     const apiEndpoints = {
       nsfw_api: 'https://api.n-sfw.com/nsfw/',
@@ -124,6 +136,7 @@ export default function Gallery() {
     setDownloadingIndex(index);
     try {
       downloadImage(imageUrl);
+      triggerHapticFeedback();
     } catch (error) {
       toast({
         title: 'Error',
@@ -137,6 +150,7 @@ export default function Gallery() {
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
+      <ScrollIndicator totalItems={images.length} lastVisibleIndex={lastVisibleIndex} />
       <Card className="mb-8 bg-card border shadow-lg">
         <CardContent className="p-6 relative">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent text-center whitespace-nowrap">
@@ -145,13 +159,16 @@ export default function Gallery() {
           <div className="flex justify-center items-center gap-4">
             <CategorySelect
               selectedCategory={selectedCategory}
-              onCategoryChange={(category) => setSelectedCategory(category)}
+              onCategoryChange={(category) => {
+                setSelectedCategory(category);
+                triggerHapticFeedback();
+              }}
             />
-            <Button asChild variant="ghost" size="icon">
-              <Link to="/history">
+            <Link to="/history" onClick={() => triggerHapticFeedback()}>
+              <Button variant="ghost" size="icon">
                 <History />
-              </Link>
-            </Button>
+              </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>
@@ -164,27 +181,29 @@ export default function Gallery() {
         onImageFullscreen={(image) => {
           const index = images.findIndex(img => img.url === image.url);
           setFullscreenIndex(index);
+          triggerHapticFeedback();
         }}
         onLoadMore={fetchImages}
+        onLastVisibleIndexChange={setLastVisibleIndex}
       />
 
       <FullscreenViewer
         open={fullscreenIndex !== null}
         image={fullscreenIndex !== null ? images[fullscreenIndex] : null}
+        images={images}
         onClose={() => setFullscreenIndex(null)}
         onPrev={() => {
           if (fullscreenIndex !== null) {
             const newIndex = (fullscreenIndex - 1 + images.length) % images.length;
             setFullscreenIndex(newIndex);
-            if ('vibrate' in navigator) navigator.vibrate(20);
+            triggerHapticFeedback();
           }
         }}
         onNext={() => {
           if (fullscreenIndex !== null) {
             const newIndex = (fullscreenIndex + 1) % images.length;
             setFullscreenIndex(newIndex);
-            // Note: navigator.vibrate is not supported on iOS.
-            if ('vibrate' in navigator) navigator.vibrate(20);
+            triggerHapticFeedback();
           }
         }}
       />

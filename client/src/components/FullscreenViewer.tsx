@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { X } from 'lucide-react';
+import { X, Share2 } from 'lucide-react';
+import { triggerHapticFeedback } from '../lib/haptics';
 import type { GalleryImage } from '../pages/Gallery';
 
 interface FullscreenViewerProps {
@@ -9,10 +10,30 @@ interface FullscreenViewerProps {
   onPrev: () => void;
   onNext: () => void;
   open: boolean;
+  images: GalleryImage[];
 }
 
-export default function FullscreenViewer({ image, onClose, onPrev, onNext, open }: FullscreenViewerProps) {
+export default function FullscreenViewer({ image, onClose, onPrev, onNext, open, images }: FullscreenViewerProps) {
   const viewerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (open && image) {
+      const currentIndex = images.findIndex(img => img.url === image.url);
+      if (currentIndex !== -1) {
+        // Preload next and previous images
+        const nextIndex = (currentIndex + 1) % images.length;
+        const prevIndex = (currentIndex - 1 + images.length) % images.length;
+        const nextImage = images[nextIndex];
+        const prevImage = images[prevIndex];
+        if (nextImage) {
+          new Image().src = nextImage.url;
+        }
+        if (prevImage) {
+          new Image().src = prevImage.url;
+        }
+      }
+    }
+  }, [open, image, images]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -35,11 +56,49 @@ export default function FullscreenViewer({ image, onClose, onPrev, onNext, open 
     }
   }, [open, image]);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowLeft') {
+        onPrev();
+      } else if (event.key === 'ArrowRight') {
+        onNext();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onPrev, onNext]);
+
   const handleSwipe = (event: MouseEvent | TouchEvent | PointerEvent, info: { offset: { x: number; y: number; }; }) => {
     if (info.offset.x > 100) {
       onPrev();
     } else if (info.offset.x < -100) {
       onNext();
+    }
+  };
+
+  const handleShare = async () => {
+    if (!image) return;
+    triggerHapticFeedback();
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Check out this image!',
+          text: 'I found this image in the Neko Gallery.',
+          url: image.url,
+        });
+      } catch (error) {
+        console.error('Error sharing:', error);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(image.url);
+        alert('Image URL copied to clipboard!');
+      } catch (error) {
+        console.error('Error copying to clipboard:', error);
+      }
     }
   };
 
@@ -61,12 +120,28 @@ export default function FullscreenViewer({ image, onClose, onPrev, onNext, open 
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.2 }}
       />
-      <button
-        className="absolute top-8 right-8 text-white/50 hover:text-white"
-        onClick={() => document.exitFullscreen()}
-      >
-        <X size={40} />
-      </button>
+      <div className="absolute top-8 right-8 flex gap-4">
+        <button
+          className="text-white/50 hover:text-white"
+          onClick={handleShare}
+          aria-label="Share image"
+        >
+          <Share2 size={40} />
+        </button>
+        <button
+          className="text-white/50 hover:text-white"
+          onClick={() => {
+            if (document.fullscreenElement) {
+              document.exitFullscreen();
+            } else {
+              onClose();
+            }
+          }}
+          aria-label="Close viewer"
+        >
+          <X size={40} />
+        </button>
+      </div>
     </div>
   );
 }

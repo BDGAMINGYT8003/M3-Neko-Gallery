@@ -12,6 +12,7 @@ interface GalleryGridProps {
   downloadingIndex: number | null;
   onImageFullscreen: (image: GalleryImage) => void;
   onLoadMore: () => void;
+  onLastVisibleIndexChange: (index: number) => void;
 }
 
 export default function GalleryGrid({
@@ -21,8 +22,10 @@ export default function GalleryGrid({
   downloadingIndex,
   onImageFullscreen,
   onLoadMore,
+  onLastVisibleIndexChange,
 }: GalleryGridProps) {
   const endRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const isIntersecting = useIntersection(endRef, {
     root: null,
     rootMargin: '100px',
@@ -34,6 +37,45 @@ export default function GalleryGrid({
       onLoadMore();
     }
   }, [isIntersecting, loading, onLoadMore]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const { activeElement } = document;
+      const currentIndex = cardRefs.current.findIndex(ref => ref === activeElement);
+
+      if (currentIndex === -1) return;
+
+      let nextIndex = -1;
+      const columns = window.innerWidth >= 1280 ? 4 : window.innerWidth >= 1024 ? 3 : window.innerWidth >= 640 ? 2 : 1;
+
+      const getColumns = () => {
+        if (window.innerWidth >= 1280) return 4;
+        if (window.innerWidth >= 1024) return 3;
+        if (window.innerWidth >= 640) return 2;
+        return 1;
+      };
+      const columns = getColumns();
+
+      if (event.key === 'ArrowRight') {
+        nextIndex = Math.min(currentIndex + 1, images.length - 1);
+      } else if (event.key === 'ArrowLeft') {
+        nextIndex = Math.max(currentIndex - 1, 0);
+      } else if (event.key === 'ArrowDown') {
+        nextIndex = Math.min(currentIndex + columns, images.length - 1);
+      } else if (event.key === 'ArrowUp') {
+        nextIndex = Math.max(currentIndex - columns, 0);
+      }
+
+      if (nextIndex !== -1) {
+        cardRefs.current[nextIndex]?.focus();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [images.length]);
 
   return (
     <>
@@ -54,10 +96,12 @@ export default function GalleryGrid({
         {images.map((image, index) => (
           <ImageCard
             key={`${image.url}-${index}`}
+            ref={el => cardRefs.current[index] = el}
             image={image}
             onDownload={() => onDownload(image.url)}
             isDownloading={downloadingIndex === index}
             onFullscreen={() => onImageFullscreen(image)}
+            onVisible={() => onLastVisibleIndexChange(index)}
           />
         ))}
 

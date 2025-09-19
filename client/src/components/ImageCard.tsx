@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, forwardRef } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,15 +12,15 @@ interface ImageCardProps {
   onDownload: (imageUrl: string) => void;
   isDownloading: boolean;
   onFullscreen: () => void;
+  onVisible: () => void;
 }
 
-export default function ImageCard({ image, onDownload, isDownloading, onFullscreen }: ImageCardProps) {
+const ImageCard = forwardRef<HTMLDivElement, ImageCardProps>(({ image, onDownload, isDownloading, onFullscreen, onVisible }, ref) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasBeenViewed, setHasBeenViewed] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
   
   // Track when the image becomes visible
-  const isVisible = useIntersection(cardRef, {
+  const isVisible = useIntersection(ref, {
     threshold: 0.1, // Image needs to be at least 10% visible
     rootMargin: '0px',
   });
@@ -29,20 +29,22 @@ export default function ImageCard({ image, onDownload, isDownloading, onFullscre
   useEffect(() => {
     if (isVisible && !hasBeenViewed && !isLoading) {
       setHasBeenViewed(true);
+      onVisible();
       addImageToHistory(image).catch(error => {
         console.error('Failed to add image to history:', error);
       });
     }
-  }, [isVisible, hasBeenViewed, isLoading, image]);
+  }, [isVisible, hasBeenViewed, isLoading, image, onVisible]);
 
   return (
     <motion.div
-      ref={cardRef}
+      ref={ref}
       variants={{
         hidden: { opacity: 0, y: 20 },
         show: { opacity: 1, y: 0 },
       }}
       className="relative"
+      tabIndex={0}
     >
       <Card className="group overflow-hidden">
         <CardContent className="p-0">
@@ -50,11 +52,18 @@ export default function ImageCard({ image, onDownload, isDownloading, onFullscre
             {isLoading && (
               <div className="absolute inset-0 bg-muted animate-pulse" />
             )}
-            <img
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${image.url})`, filter: 'blur(20px)' }}
+            />
+            <motion.img
               src={image.url}
               alt="Artwork"
-              className={`w-full h-auto object-cover transition-transform duration-300 group-hover:scale-110 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+              className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-110"
               loading="lazy"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
               onLoad={(e) => {
                 const img = e.target as HTMLImageElement;
                 img.style.aspectRatio = `${img.naturalWidth} / ${img.naturalHeight}`;
@@ -71,6 +80,7 @@ export default function ImageCard({ image, onDownload, isDownloading, onFullscre
                   onDownload(image.url);
                 }}
                 disabled={isDownloading}
+                aria-label="Download image"
               >
                 <Download className="w-6 h-6" />
               </Button>
@@ -82,6 +92,7 @@ export default function ImageCard({ image, onDownload, isDownloading, onFullscre
                   e.stopPropagation();
                   onFullscreen();
                 }}
+                aria-label="View image in fullscreen"
               >
                 <Expand className="w-6 h-6" />
               </Button>
@@ -91,4 +102,6 @@ export default function ImageCard({ image, onDownload, isDownloading, onFullscre
       </Card>
     </motion.div>
   );
-}
+});
+
+export default ImageCard;

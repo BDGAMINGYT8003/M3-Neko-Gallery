@@ -7,9 +7,6 @@ const ASSETS_TO_CACHE = [
 ];
 const IMAGE_CACHE_NAME = 'neko-gallery-images-v1';
 const MAX_IMAGES_TO_CACHE = 50;
-const INITIAL_IMAGES_TO_CACHE = 10;
-
-let imageCounter = 0;
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -20,15 +17,21 @@ self.addEventListener('install', (event) => {
   );
 });
 
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'CACHE_URLS') {
+    const { payload } = event.data;
+    caches.open(IMAGE_CACHE_NAME).then(cache => {
+      cache.addAll(payload.urls);
+    });
+  }
+});
+
 self.addEventListener('fetch', (event) => {
   const { request } = event;
 
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
-        .then((response) => {
-          return response;
-        })
         .catch(() => {
           return caches.match('/index.html');
         })
@@ -44,20 +47,13 @@ self.addEventListener('fetch', (event) => {
         }
 
         return fetch(request).then((networkResponse) => {
-          if (imageCounter < INITIAL_IMAGES_TO_CACHE) {
-            return caches.open(IMAGE_CACHE_NAME).then((cache) => {
-              cache.put(request, networkResponse.clone());
-              imageCounter++;
-              return networkResponse;
-            });
-          }
-
           return caches.open(IMAGE_CACHE_NAME).then((cache) => {
             cache.keys().then((keys) => {
               if (keys.length > MAX_IMAGES_TO_CACHE) {
                 cache.delete(keys[0]);
               }
             });
+            cache.put(request, networkResponse.clone());
             return networkResponse;
           });
         });
@@ -68,13 +64,12 @@ self.addEventListener('fetch', (event) => {
 
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
-      const fetchPromise = fetch(request).then((networkResponse) => {
+      return cachedResponse || fetch(request).then((networkResponse) => {
         caches.open(CACHE_NAME).then((cache) => {
           cache.put(request, networkResponse.clone());
         });
         return networkResponse;
       });
-      return cachedResponse || fetchPromise;
     })
   );
 });
