@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, Expand } from 'lucide-react';
 import type { GalleryImage } from '../pages/Gallery';
+import { useIntersection } from '@/hooks/use-intersection';
+import { addImageToHistory } from '../lib/historyDB';
 
 interface ImageCardProps {
   image: GalleryImage;
@@ -14,9 +16,28 @@ interface ImageCardProps {
 
 export default function ImageCard({ image, onDownload, isDownloading, onFullscreen }: ImageCardProps) {
   const [isLoading, setIsLoading] = useState(true);
+  const [hasBeenViewed, setHasBeenViewed] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+  
+  // Track when the image becomes visible
+  const isVisible = useIntersection(cardRef, {
+    threshold: 0.1, // Image needs to be at least 10% visible
+    rootMargin: '0px',
+  });
+
+  // Add to history when image becomes visible for the first time
+  useEffect(() => {
+    if (isVisible && !hasBeenViewed && !isLoading) {
+      setHasBeenViewed(true);
+      addImageToHistory(image).catch(error => {
+        console.error('Failed to add image to history:', error);
+      });
+    }
+  }, [isVisible, hasBeenViewed, isLoading, image]);
 
   return (
     <motion.div
+      ref={cardRef}
       variants={{
         hidden: { opacity: 0, y: 20 },
         show: { opacity: 1, y: 0 },

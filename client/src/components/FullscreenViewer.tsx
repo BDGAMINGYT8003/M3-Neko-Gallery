@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import type { GalleryImage } from '../pages/Gallery';
-import { addImageToHistory } from '../lib/historyDB';
 
 interface FullscreenViewerProps {
   image: GalleryImage | null;
@@ -31,9 +30,6 @@ export default function FullscreenViewer({ image, onClose, onPrev, onNext, open 
       viewerRef.current.requestFullscreen().catch((err) => {
         console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
       });
-      if (image) {
-        addImageToHistory(image);
-      }
     } else if (!open && document.fullscreenElement) {
       document.exitFullscreen();
     }
