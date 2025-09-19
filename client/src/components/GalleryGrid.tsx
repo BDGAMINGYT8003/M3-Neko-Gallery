@@ -48,14 +48,6 @@ export default function GalleryGrid({
       let nextIndex = -1;
       const columns = window.innerWidth >= 1280 ? 4 : window.innerWidth >= 1024 ? 3 : window.innerWidth >= 640 ? 2 : 1;
 
-      const getColumns = () => {
-        if (window.innerWidth >= 1280) return 4;
-        if (window.innerWidth >= 1024) return 3;
-        if (window.innerWidth >= 640) return 2;
-        return 1;
-      };
-      const columns = getColumns();
-
       if (event.key === 'ArrowRight') {
         nextIndex = Math.min(currentIndex + 1, images.length - 1);
       } else if (event.key === 'ArrowLeft') {
