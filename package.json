@@ -55,6 +55,8 @@
     "express": "^4.21.2",
     "express-session": "^1.18.1",
     "framer-motion": "^11.13.1",
+    "hmfull": "^2.4.3",
+    "hmtai": "^3.2.3",
     "idb": "^8.0.3",
     "input-otp": "^1.2.4",
     "lucide-react": "^0.453.0",
