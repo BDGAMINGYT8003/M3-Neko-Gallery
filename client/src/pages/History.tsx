@@ -39,6 +39,23 @@ export default function History() {
     loadHistory();
   }, []);
 
+  // Reload history when the page becomes visible (user navigates back from gallery)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        loadHistory();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', loadHistory);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', loadHistory);
+    };
+  }, []);
+
   const handleClearHistory = async () => {
     try {
       await clearHistory();

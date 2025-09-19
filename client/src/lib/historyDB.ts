@@ -30,12 +30,17 @@ export async function addImageToHistory(image: GalleryImage) {
   // Add the new image
   await store.put(imageWithTimestamp);
 
-  // Enforce the history limit
+  // Enforce the history limit by removing oldest items
   const count = await store.count();
   if (count > MAX_HISTORY_ITEMS) {
+    const excessCount = count - MAX_HISTORY_ITEMS;
     let cursor = await store.index('timestamp').openCursor();
-    if (cursor) {
+    let deletedCount = 0;
+    
+    while (cursor && deletedCount < excessCount) {
       await store.delete(cursor.primaryKey);
+      deletedCount++;
+      cursor = await cursor.continue();
     }
   }
 
