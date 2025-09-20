@@ -1,0 +1,67 @@
+**Comprehensive API Integration Instructions:**
+
+The goal is to level up the existing "Neko Gallery" web application by welcoming the new "Ultimate-NSFW" set of resources. This involves carefully adding new points of access (API endpoints) for mature content to the website, using the coding languages and tools we've talked about before (Typescript, Next.js, Tailwind CSS, and others).
+
+1.  **Adding New Access Points:** You're going to carefully add the specific online locations (API endpoints) that I provide below. These new access points will be organized into different categories. If a category from the new set of access points matches a category that already exists on the website, you'll want to combine them. When someone visits a combined category, content from all the connected sources should appear randomly. For example, if both the existing site and the new resources have a category for "mature doodles involving backsides," you'll add the new access point to the existing "mature doodles involving backsides" category. And of course, you'll also make sure that the new access points are included in the "All Content" option. **Important:** You are not allowed to change the existing files, the way the site is structured, the appearance, or how it works, unless I tell you to do so directly.
+2.  **Investigating "Ultimate-NSFW":** First, take a look at all the parts of the "Ultimate-NSFW" project on the code-sharing website (links below). Your aim is to understand how it's put together, not necessarily how to use it. Think of it as finding a hidden map – you're digging into the project's code to discover the specific online locations it uses to gather its content. Then, you'll reconstruct the way it grabs content by directly contacting those same online locations. This way, even though the original project is gone, we can still achieve what it was designed to do, thanks to your clever coding skills.
+3.  **Focus on Mature Content:** Only include the online locations (API endpoints) that offer mature content. Please ignore any that are designed for general audiences.
+4.  **Protecting Existing Resources:** It's essential that you absolutely DO NOT alter, modify, or remove any of the online locations (APIs) or code that is already part of the website. This addition should be purely additive.
+5.  **Combining Categories (CRITICAL):**
+    *   Carefully review the categories from the "Ultimate-NSFW" project and cleverly combine them with the existing categories on the "Neko Gallery" website, based on the equivalencies I'll describe below.
+    *   When a combined category is chosen, make sure that the content displayed comes randomly and seamlessly from ALL the access points connected to that category.
+
+    **Understanding Category Equivalencies (Example - you MUST apply this logic to *all* access points):**
+
+    *   `hentai anal` and `anal` MUST be treated as the same category.
+    *   `Paizuri` and `Paizuri2` MUST be treated as the same category.
+    *   `Ass` and `Hentai Ass` MUST be treated as the same category.
+
+    Use this same line of thinking for all the other categories, so that any categories that mean the same thing are combined into a single choice on the website.
+
+6.  **Random Content Selection:** When someone chooses a combined category, ensure that the images displayed are selected randomly and smoothly from all the associated access points (APIs). This will provide a varied and interesting experience.
+7.  **Updating "All Content":** The "All Content" option should be updated to include every single one of the new mature content access points from the "Ultimate-NSFW" project, alongside the access points that were already there.
+8.  **Handling Content Responses:** Make sure the website's code can understand the specific way that the "Ultimate-NSFW" project sends back content information (the JSON response structure). Remember to extract the correct piece of information ("url") that points to where the image is located.
+9.  **Managing Potential Problems:** Include code that can handle situations where the website can't reach one of the online locations (API request failures). This will ensure that the website continues to work smoothly, even if there are temporary problems with some of the content sources.
+10. **Keeping Code Organized:** Write the new code for the "Ultimate-NSFW" project in a way that is easy to understand and maintain. Follow good coding practices to keep things neat and tidy.
+11. **Documenting the Process:** Write clear and concise documentation that explains how the new "Ultimate-NSFW" project was added. Include any important details or special considerations.
+
+**"Ultimate-NSFW" API Endpoints:**
+
+```
+Tentacle: https://nekobot.xyz/api/image?type=tentacle
+4k: https://nekobot.xyz/api/image?type=4k
+Hentai Anal: https://nekobot.xyz/api/image?type=hentai_anal
+Hkitsune: https://nekobot.xyz/api/image?type=hkitsune
+Gonewild: https://nekobot.xyz/api/image?type=gonewild
+Blowjob: https://nekobot.xyz/api/image?type=blowjob
+Ass: https://nekobot.xyz/api/image?type=ass
+Hentai Midriff: https://nekobot.xyz/api/image?type=hmidriff
+Hentai Thigh: https://nekobot.xyz/api/image?type=hthigh
+Hyuri: https://nekobot.xyz/api/image?type=hyuri
+Feet: https://nekobot.xyz/api/image?type=feet
+Lewd Neko: https://nekobot.xyz/api/image?type=lewdneko
+Paizuri: https://api.waifu.im/search?is_nsfw=true&included_tags=paizuri
+Paizuri2: https://nekobot.xyz/api/image?type=paizuri
+Pussy: https://nekobot.xyz/api/image?type=pussy
+Hentai Boobs: https://nekobot.xyz/api/image?type=hboobs
+Hass2: https://nekobot.xyz/api/image?type=hass
+Thigh: https://nekobot.xyz/api/image?type=thigh
+Porn GIF: https://nekobot.xyz/api/image?type=pgif
+Hentai2: https://nekobot.xyz/api/image?type=hentai
+Boobs: https://nekobot.xyz/api/image?type=boobs
+Anal: https://nekobot.xyz/api/image?type=anal
+Ecchi: https://api.waifu.im/search?is_nsfw=true&included_tags=ecchi
+Oral: https://api.waifu.im/search?is_nsfw=true&included_tags=oral
+Milf: https://api.waifu.im/search?is_nsfw=true&included_tags=milf
+Hentai: https://api.waifu.im/search?is_nsfw=true&included_tags=hentai
+Hentai Ass: https://api.waifu.im/search?is_nsfw=true&included_tags=ass
+Ero: https://api.waifu.im/search?is_nsfw=true&included_tags=ero
+```
+
+**GitHub Project Links (for exploration):**
+
+*   [https://github.com/SrEvelio/Ultimate-NSFW](https://github.com/SrEvelio/Ultimate-NSFW)
+*   [https://raw.githubusercontent.com/SrEvelio/Ultimate-NSFW/main/src/index.ts](https://raw.githubusercontent.com/SrEvelio/Ultimate-NSFW/main/src/index.ts)
+*   [https://raw.githubusercontent.com/SrEvelio/Ultimate-NSFW/main/src/Functions/Main.ts](https://raw.githubusercontent.com/SrEvelio/Ultimate-NSFW/main/src/Functions/Main.ts)
+
+With this information, you should be able to integrate the provided APIs and rebuild the fetching logic yourself. Remember to prioritize code organization, error handling, and thorough documentation.
