@@ -18,13 +18,9 @@ export interface GalleryImage {
 
 const ITEMS_PER_PAGE = 10;
 const CATEGORIES = [
-  "ero", "hass", "hentai", "milf", "oral", "paizuri", "ecchi", "anal", "neko", "boobs",
-  "wallpaper", "ngif", "tickle", "feed", "gecg", "gasm", "slap", "avatar", "waifu", "pat",
-  "spank", "fox_girl", "smug", "goose", "woof", "cosplay", "hentai2", "pgif", "swimsuit",
-  "thigh", "hass2", "hboobs", "pussy", "paizuri2", "pantsu", "lewdneko", "feet", "hyuri",
-  "hthigh", "hmidriff", "ass", "nakadashi", "blowjob", "gonewild", "hkitsune", "tentacle",
-  "fourk", "kanna", "hentai_anal", "food", "neko2", "holo", "pee", "kemonomimi", "coffee",
-  "yaoi", "futa", "gah"
+  "tentacle", "fourk", "hentai_anal", "hkitsune", "gonewild", "blowjob", "ass", "hmidriff",
+  "hthigh", "hyuri", "feet", "lewdneko", "paizuri", "paizuri2", "pussy", "hboobs", "hass2",
+  "thigh", "pgif", "hentai2", "boobs", "anal", "ecchi", "oral", "milf", "hentai", "hass", "ero"
 ];
 
 const nekoapi = "https://nekobot.xyz/api/image";
