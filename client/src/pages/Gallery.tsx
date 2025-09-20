@@ -41,7 +41,7 @@ export default function Gallery() {
         let category = selectedCategory;
 
         if (!selectedCategory) {
-          const apiSources = ['nsfw_api', 'waifu_pics_api', 'nekos_moe_api'];
+          const apiSources = ['nsfw_api', 'waifu_pics_api', 'nekos_moe_api', 'nekobot_api', 'waifu_im_api'];
           apiSource = apiSources[Math.floor(Math.random() * apiSources.length)];
 
           if (apiSource === 'waifu_pics_api') {
@@ -55,9 +55,22 @@ export default function Gallery() {
               "pierced", "selfie", "smothering", "socks", "vagina", "yuri"
             ];
             category = nsfwCategories[Math.floor(Math.random() * nsfwCategories.length)];
+          } else if (apiSource === 'nekobot_api') {
+            const nekobotCategories = [
+              "tentacle", "4k", "anal", "blowjob", "ass", "feet", "paizuri", 
+              "pussy", "boobs", "thigh", "hentai", "gonewild"
+            ];
+            category = nekobotCategories[Math.floor(Math.random() * nekobotCategories.length)];
+          } else if (apiSource === 'waifu_im_api') {
+            const waifuImCategories = [
+              "paizuri", "ecchi", "oral", "milf", "hentai", "ass", "ero"
+            ];
+            category = waifuImCategories[Math.floor(Math.random() * waifuImCategories.length)];
           }
         } else {
-          apiSource = 'nsfw_api';
+          // Determine which APIs support the selected category
+          const availableApis = getApisForCategory(selectedCategory);
+          apiSource = availableApis[Math.floor(Math.random() * availableApis.length)];
         }
 
         try {
@@ -84,6 +97,46 @@ export default function Gallery() {
     }
   }, [selectedCategory]);
 
+  // Function to determine which APIs support a given category
+  const getApisForCategory = (category: string): string[] => {
+    const categoryMap: { [key: string]: string[] } = {
+      'anal': ['nsfw_api', 'nekobot_api'],
+      'ass': ['nsfw_api', 'nekobot_api', 'waifu_im_api'],
+      'blowjob': ['nsfw_api', 'waifu_pics_api', 'nekobot_api'],
+      'boobs': ['nekobot_api'],
+      'ecchi': ['nsfw_api', 'waifu_im_api'],
+      'feet': ['nsfw_api', 'nekobot_api'],
+      'gif': ['nsfw_api'],
+      'gonewild': ['nekobot_api'],
+      'hentai': ['nsfw_api', 'nekobot_api', 'waifu_im_api'],
+      'milf': ['nsfw_api', 'waifu_im_api'],
+      'neko': ['nsfw_api', 'waifu_pics_api'],
+      'oral': ['waifu_im_api'],
+      'paizuri': ['nsfw_api', 'nekobot_api', 'waifu_im_api'],
+      'pussy': ['nekobot_api'],
+      'tentacle': ['nekobot_api'],
+      'thigh': ['nekobot_api'],
+      'ero': ['waifu_im_api'],
+      '4k': ['nekobot_api'],
+      // Legacy categories
+      'breeding': ['nsfw_api'],
+      'buttplug': ['nsfw_api'],
+      'cages': ['nsfw_api'],
+      'fo': ['nsfw_api'],
+      'legs': ['nsfw_api'],
+      'masturbation': ['nsfw_api'],
+      'petgirls': ['nsfw_api'],
+      'pierced': ['nsfw_api'],
+      'selfie': ['nsfw_api'],
+      'smothering': ['nsfw_api'],
+      'socks': ['nsfw_api'],
+      'vagina': ['nsfw_api'],
+      'yuri': ['nsfw_api']
+    };
+    
+    return categoryMap[category] || ['nsfw_api'];
+  };
+
   useEffect(() => {
     setImages([]);
     fetchImages();
@@ -93,14 +146,51 @@ export default function Gallery() {
     const apiEndpoints = {
       nsfw_api: 'https://api.n-sfw.com/nsfw/',
       waifu_pics_api: 'https://api.waifu.pics/nsfw/',
-      nekos_moe_api: 'https://nekos.moe/api/v1/random/image'
+      nekos_moe_api: 'https://nekos.moe/api/v1/random/image',
+      nekobot_api: 'https://nekobot.xyz/api/image',
+      waifu_im_api: 'https://api.waifu.im/search'
     };
 
-    const endpoint = category?.startsWith('waifu_')
-      ? `${apiEndpoints.waifu_pics_api}${category.replace('waifu_', '')}`
-      : category
-        ? `${apiEndpoints[apiSource as keyof typeof apiEndpoints]}${category}`
-        : apiEndpoints[apiSource as keyof typeof apiEndpoints];
+    let endpoint = '';
+    
+    if (apiSource === 'nekobot_api') {
+      // Map merged categories to nekobot types
+      const nekobotTypeMap: { [key: string]: string } = {
+        'anal': 'hentai_anal',
+        'ass': 'hass',
+        'hentai': 'hentai',
+        'paizuri': 'paizuri',
+        'boobs': 'hboobs',
+        'thigh': 'hthigh',
+        'feet': 'feet',
+        'blowjob': 'blowjob',
+        'pussy': 'pussy',
+        'tentacle': 'tentacle',
+        '4k': '4k',
+        'gonewild': 'gonewild'
+      };
+      const nekobotType = nekobotTypeMap[category || ''] || category;
+      endpoint = `${apiEndpoints.nekobot_api}?type=${nekobotType}`;
+    } else if (apiSource === 'waifu_im_api') {
+      // Map merged categories to waifu.im tags
+      const waifuImTagMap: { [key: string]: string } = {
+        'ass': 'ass',
+        'hentai': 'hentai',
+        'paizuri': 'paizuri',
+        'ecchi': 'ecchi',
+        'oral': 'oral',
+        'milf': 'milf',
+        'ero': 'ero'
+      };
+      const tag = waifuImTagMap[category || ''] || category;
+      endpoint = `${apiEndpoints.waifu_im_api}?is_nsfw=true&included_tags=${tag}`;
+    } else if (category?.startsWith('waifu_')) {
+      endpoint = `${apiEndpoints.waifu_pics_api}${category.replace('waifu_', '')}`;
+    } else if (category && apiSource !== 'nekos_moe_api') {
+      endpoint = `${apiEndpoints[apiSource as keyof typeof apiEndpoints]}${category}`;
+    } else {
+      endpoint = apiEndpoints[apiSource as keyof typeof apiEndpoints];
+    }
 
     const response = await fetch(endpoint);
     if (!response.ok) return null;
@@ -112,6 +202,10 @@ export default function Gallery() {
       imageUrl = data.url;
     } else if (apiSource === 'nekos_moe_api' && data.images?.[0]) {
       imageUrl = `https://nekos.moe/image/${data.images[0].id}.jpg`;
+    } else if (apiSource === 'nekobot_api') {
+      imageUrl = data.message;
+    } else if (apiSource === 'waifu_im_api' && data.images?.[0]) {
+      imageUrl = data.images[0].url;
     } else {
       imageUrl = data.url_japan;
     }

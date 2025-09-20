@@ -1,10 +1,11 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const CATEGORIES = [
-  "anal", "ass", "blowjob", "breeding", "buttplug", "cages",
-  "ecchi", "feet", "fo", "gif", "hentai", "legs",
-  "masturbation", "milf", "neko", "paizuri", "petgirls",
-  "pierced", "selfie", "smothering", "socks", "vagina", "yuri"
+  "anal", "ass", "blowjob", "boobs", "breeding", "buttplug", "cages",
+  "ecchi", "ero", "feet", "fo", "gif", "gonewild", "hentai", "legs",
+  "masturbation", "milf", "neko", "oral", "paizuri", "petgirls",
+  "pierced", "pussy", "selfie", "smothering", "socks", "tentacle", "thigh",
+  "vagina", "yuri", "4k"
 ];
 
 interface CategorySelectProps {
