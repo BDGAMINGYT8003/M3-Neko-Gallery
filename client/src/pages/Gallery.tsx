@@ -11,13 +11,86 @@ import { useToast } from '@/hooks/use-toast';
 
 export interface GalleryImage {
   url: string;
-  apiSource: string;
   category: string | null;
   width?: number;
   height?: number;
 }
 
 const ITEMS_PER_PAGE = 10;
+const CATEGORIES = [
+  "ero", "hass", "hentai", "milf", "oral", "paizuri", "ecchi", "anal", "neko", "boobs",
+  "wallpaper", "ngif", "tickle", "feed", "gecg", "gasm", "slap", "avatar", "waifu", "pat",
+  "spank", "fox_girl", "smug", "goose", "woof", "cosplay", "hentai2", "pgif", "swimsuit",
+  "thigh", "hass2", "hboobs", "pussy", "paizuri2", "pantsu", "lewdneko", "feet", "hyuri",
+  "hthigh", "hmidriff", "ass", "nakadashi", "blowjob", "gonewild", "hkitsune", "tentacle",
+  "fourk", "kanna", "hentai_anal", "food", "neko2", "holo", "pee", "kemonomimi", "coffee",
+  "yaoi", "futa", "gah"
+];
+
+const nekoapi = "https://nekobot.xyz/api/image";
+const nekoslife = "https://nekos.life/api/v2/img";
+const waifuim = "https://api.waifu.im/search?is_nsfw=true";
+
+const apiMap: { [key: string]: string } = {
+  ero: `${waifuim}&included_tags=ero`,
+  hass: `${waifuim}&included_tags=ass`,
+  hentai: `${waifuim}&included_tags=hentai`,
+  milf: `${waifuim}&included_tags=milf`,
+  oral: `${waifuim}&included_tags=oral`,
+  paizuri: `${waifuim}&included_tags=paizuri`,
+  ecchi: `${waifuim}&included_tags=ecchi`,
+  anal: `${nekoapi}?type=anal`,
+  neko: `${nekoslife}/neko`,
+  boobs: `${nekoapi}?type=boobs`,
+  wallpaper: `${nekoslife}/wallpaper`,
+  ngif: `${nekoslife}/ngif`,
+  tickle: `${nekoslife}/tickle`,
+  feed: `${nekoslife}/feed`,
+  gecg: `${nekoslife}/gecg`,
+  gasm: `${nekoslife}/gasm`,
+  slap: `${nekoslife}/slap`,
+  avatar: `${nekoslife}/avatar`,
+  waifu: `${nekoslife}/waifu`,
+  pat: `${nekoslife}/pat`,
+  spank: `${nekoslife}/spank`,
+  fox_girl: `${nekoslife}/fox_girl`,
+  smug: `${nekoslife}/smug`,
+  goose: `${nekoslife}/goose`,
+  woof: `${nekoslife}/woof`,
+  cosplay: `${nekoapi}?type=cosplay`,
+  hentai2: `${nekoapi}?type=hentai`,
+  pgif: `${nekoapi}?type=pgif`,
+  swimsuit: `${nekoapi}?type=swimsuit`,
+  thigh: `${nekoapi}?type=thigh`,
+  hass2: `${nekoapi}?type=hass`,
+  hboobs: `${nekoapi}?type=hboobs`,
+  pussy: `${nekoapi}?type=pussy`,
+  paizuri2: `${nekoapi}?type=paizuri`,
+  pantsu: `${nekoapi}?type=pantsu`,
+  lewdneko: `${nekoapi}?type=lewdneko`,
+  feet: `${nekoapi}?type=feet`,
+  hyuri: `${nekoapi}?type=hyuri`,
+  hthigh: `${nekoapi}?type=hthigh`,
+  hmidriff: `${nekoapi}?type=hmidriff`,
+  ass: `${nekoapi}?type=ass`,
+  nakadashi: `${nekoapi}?type=nakadashi`,
+  blowjob: `${nekoapi}?type=blowjob`,
+  gonewild: `${nekoapi}?type=gonewild`,
+  hkitsune: `${nekoapi}?type=hkitsune`,
+  tentacle: `${nekoapi}?type=tentacle`,
+  fourk: `${nekoapi}?type=4k`,
+  kanna: `${nekoapi}?type=kanna`,
+  hentai_anal: `${nekoapi}?type=hentai_anal`,
+  food: `${nekoapi}?type=food`,
+  neko2: `${nekoapi}?type=neko`,
+  holo: `${nekoapi}?type=holo`,
+  pee: `${nekoapi}?type=pee`,
+  kemonomimi: `${nekoapi}?type=kemonomimi`,
+  coffee: `${nekoapi}?type=coffee`,
+  yaoi: `${nekoapi}?type=yaoi`,
+  futa: `${nekoapi}?type=futa`,
+  gah: `${nekoapi}?type=gah`,
+};
 
 export default function Gallery() {
   const [images, setImages] = useState<GalleryImage[]>([]);
@@ -28,6 +101,31 @@ export default function Gallery() {
   const loadingRef = useRef(false);
   const { toast } = useToast();
 
+  const fetch = useCallback(async (category: string): Promise<GalleryImage | null> => {
+    const apiUrl = apiMap[category];
+    if (!apiUrl) {
+      console.error(`Category "${category}" does not exist`);
+      return null;
+    }
+
+    try {
+      const response = await window.fetch(apiUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      const url = data.message || data.url || (data.images && data.images[0] && data.images[0].url);
+
+      if (url) {
+        return { url, category };
+      }
+      return null;
+    } catch (error) {
+      console.error(`Error fetching image for category ${category}:`, error);
+      return null;
+    }
+  }, []);
+
   const fetchImages = useCallback(async () => {
     if (loadingRef.current) return;
     loadingRef.current = true;
@@ -35,41 +133,22 @@ export default function Gallery() {
 
     try {
       const newImages: GalleryImage[] = [];
+      const promises: Promise<GalleryImage | null>[] = [];
 
       for (let i = 0; i < ITEMS_PER_PAGE; i++) {
-        let apiSource: string;
         let category = selectedCategory;
-
-        if (!selectedCategory) {
-          const apiSources = ['nsfw_api', 'waifu_pics_api', 'nekos_moe_api'];
-          apiSource = apiSources[Math.floor(Math.random() * apiSources.length)];
-
-          if (apiSource === 'waifu_pics_api') {
-            const waifuCategories = ["waifu", "neko", "blowjob"];
-            category = `waifu_${waifuCategories[Math.floor(Math.random() * waifuCategories.length)]}`;
-          } else if (apiSource === 'nsfw_api') {
-            const nsfwCategories = [
-              "anal", "ass", "blowjob", "breeding", "buttplug", "cages",
-              "ecchi", "feet", "fo", "gif", "hentai", "legs",
-              "masturbation", "milf", "neko", "paizuri", "petgirls",
-              "pierced", "selfie", "smothering", "socks", "vagina", "yuri"
-            ];
-            category = nsfwCategories[Math.floor(Math.random() * nsfwCategories.length)];
-          }
-        } else {
-          apiSource = 'nsfw_api';
+        if (!category) {
+          category = CATEGORIES[Math.floor(Math.random() * CATEGORIES.length)];
         }
-
-        try {
-          const imageData = await fetchImageFromApi(apiSource, category);
-          if (imageData) {
-            newImages.push(imageData);
-          }
-        } catch (error) {
-          console.error('Error fetching image:', error);
-          continue;
-        }
+        promises.push(fetch(category));
       }
+
+      const results = await Promise.all(promises);
+      results.forEach(result => {
+        if (result) {
+          newImages.push(result);
+        }
+      });
 
       setImages(prev => [...prev, ...newImages]);
     } catch (error) {
@@ -82,42 +161,12 @@ export default function Gallery() {
       setLoading(false);
       loadingRef.current = false;
     }
-  }, [selectedCategory]);
+  }, [selectedCategory, fetch, toast]);
 
   useEffect(() => {
     setImages([]);
     fetchImages();
   }, [selectedCategory, fetchImages]);
-
-  async function fetchImageFromApi(apiSource: string, category: string | null): Promise<GalleryImage | null> {
-    const apiEndpoints = {
-      nsfw_api: 'https://api.n-sfw.com/nsfw/',
-      waifu_pics_api: 'https://api.waifu.pics/nsfw/',
-      nekos_moe_api: 'https://nekos.moe/api/v1/random/image'
-    };
-
-    const endpoint = category?.startsWith('waifu_')
-      ? `${apiEndpoints.waifu_pics_api}${category.replace('waifu_', '')}`
-      : category
-        ? `${apiEndpoints[apiSource as keyof typeof apiEndpoints]}${category}`
-        : apiEndpoints[apiSource as keyof typeof apiEndpoints];
-
-    const response = await fetch(endpoint);
-    if (!response.ok) return null;
-
-    const data = await response.json();
-    let imageUrl = '';
-
-    if (apiSource === 'waifu_pics_api') {
-      imageUrl = data.url;
-    } else if (apiSource === 'nekos_moe_api' && data.images?.[0]) {
-      imageUrl = `https://nekos.moe/image/${data.images[0].id}.jpg`;
-    } else {
-      imageUrl = data.url_japan;
-    }
-
-    return imageUrl ? { url: imageUrl, apiSource, category } : null;
-  }
 
   const handleDownload = (imageUrl: string) => {
     const index = images.findIndex(img => img.url === imageUrl);
@@ -183,7 +232,6 @@ export default function Gallery() {
           if (fullscreenIndex !== null) {
             const newIndex = (fullscreenIndex + 1) % images.length;
             setFullscreenIndex(newIndex);
-            // Note: navigator.vibrate is not supported on iOS.
             if ('vibrate' in navigator) navigator.vibrate(20);
           }
         }}

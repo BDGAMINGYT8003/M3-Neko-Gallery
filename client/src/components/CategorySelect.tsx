@@ -1,10 +1,13 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const CATEGORIES = [
-  "anal", "ass", "blowjob", "breeding", "buttplug", "cages",
-  "ecchi", "feet", "fo", "gif", "hentai", "legs",
-  "masturbation", "milf", "neko", "paizuri", "petgirls",
-  "pierced", "selfie", "smothering", "socks", "vagina", "yuri"
+  "ero", "hass", "hentai", "milf", "oral", "paizuri", "ecchi", "anal", "neko", "boobs",
+  "wallpaper", "ngif", "tickle", "feed", "gecg", "gasm", "slap", "avatar", "waifu", "pat",
+  "spank", "fox_girl", "smug", "goose", "woof", "cosplay", "hentai2", "pgif", "swimsuit",
+  "thigh", "hass2", "hboobs", "pussy", "paizuri2", "pantsu", "lewdneko", "feet", "hyuri",
+  "hthigh", "hmidriff", "ass", "nakadashi", "blowjob", "gonewild", "hkitsune", "tentacle",
+  "fourk", "kanna", "hentai_anal", "food", "neko2", "holo", "pee", "kemonomimi", "coffee",
+  "yaoi", "futa", "gah"
 ];
 
 interface CategorySelectProps {
@@ -13,6 +16,21 @@ interface CategorySelectProps {
 }
 
 export default function CategorySelect({ selectedCategory, onCategoryChange }: CategorySelectProps) {
+  const formatCategoryName = (category: string) => {
+    let name = category.charAt(0).toUpperCase() + category.slice(1);
+    if (category === "hboobs") name = "Hentai Boobs";
+    if (category === "hass") name = "Hentai Ass";
+    if (category === "hthigh") name = "Hentai Thigh";
+    if (category === "hmidriff") name = "Hentai Midriff";
+    if (category === "fourk") name = "4K";
+    if (category === "fox_girl") name = "Fox Girl";
+    if (category === "hentai_anal") name = "Hentai Anal";
+    if (category === "kemonomimi") name = "Kemonomimi";
+    if (category === "ngif") name = "NSFW GIF";
+    if (category === "pgif") name = "Porn GIF";
+    return name;
+  };
+
   return (
     <Select
       value={selectedCategory || 'all'}
@@ -25,7 +43,7 @@ export default function CategorySelect({ selectedCategory, onCategoryChange }: C
         <SelectItem value="all">All Categories</SelectItem>
         {CATEGORIES.map((category) => (
           <SelectItem key={category} value={category}>
-            {category.charAt(0).toUpperCase() + category.slice(1)}
+            {formatCategoryName(category)}
           </SelectItem>
         ))}
       </SelectContent>
